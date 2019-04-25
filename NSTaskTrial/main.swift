@@ -92,7 +92,7 @@ class AsyncPing {
         set {
             objc_sync_enter(self)
             self._shouldRun =
-                newValue
+            newValue
             objc_sync_exit(self)
             
             if newValue == false
@@ -108,6 +108,8 @@ class AsyncPing {
                     name: Process.didTerminateNotification,
                     object: nil
                 )
+                
+                CFRunLoopStop(CFRunLoopGetCurrent())
             }
         }
     }
@@ -179,13 +181,13 @@ class AsyncPing {
             
             // wait on the thread
             while self.shouldRun {
-                RunLoop.current.run(until: Date.distantFuture)
+                CFRunLoopRun()
             }
         }
         
         // park the main thread
         while self.shouldRun {
-            RunLoop.current.run(until: Date().addingTimeInterval(10.0))
+            CFRunLoopRun()
         }
     }
     
@@ -206,7 +208,7 @@ class AsyncPing {
             String.init(
                 data: outputData,
                 encoding: String.Encoding.utf8
-        )?.trimmingCharacters(in: CharacterSet.newlines)
+                )?.trimmingCharacters(in: CharacterSet.newlines)
         
         print(consoleOutPut ?? "")
         //self.data.append(outputData)
@@ -222,13 +224,13 @@ class AsyncPing {
     @objc
     func taskCompletionHandler(_ notification: NSNotification) -> Void
     {
-        print(notification.name)
-//        let consoleOutPut: String? =
-//            String.init(
-//                data: self.data,
-//                encoding: String.Encoding.utf8
-//        )
-//        print(consoleOutPut ?? "")
+        //print(notification.name)
+        //        let consoleOutPut: String? =
+        //            String.init(
+        //                data: self.data,
+        //                encoding: String.Encoding.utf8
+        //        )
+        //        print(consoleOutPut ?? "")
         
         self.shouldRun =
         false
