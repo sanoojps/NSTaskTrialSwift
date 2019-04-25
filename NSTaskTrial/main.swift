@@ -21,16 +21,24 @@ func run_zip_blocking()
 {
     // command
     let task = Process()
+    task.currentDirectoryURL =
+        URL.init(
+            fileURLWithPath: "/Volumes/__work/Xcode_projects/NSTaskTrial/"
+    )
+    
+    
     task.launchPath =
-    "/usr/bin/zipinfo"
+    //"/usr/bin/zipinfo"
+    "/usr/bin/xcodebuild"
     
     // parameters
     var argumnets: [String] = []
-    argumnets.append("-1")
-    let filePath =
-    "/Users/carvak/Downloads/sample.zip"
-    // CommandLine.arguments.first!
-    argumnets.append(filePath)
+    //argumnets.append("-1")
+    argumnets.append("-list")
+//    let filePath =
+//    "/Users/carvak/Downloads/sample.zip"
+//    // CommandLine.arguments.first!
+//    argumnets.append(filePath)
     
     task.arguments =
     argumnets
@@ -69,7 +77,52 @@ func run_zip_blocking()
         let filenames =
             outputString?.components(separatedBy: CharacterSet.newlines)
         
-        print(filenames!)
+        filenames?.enumerated().forEach({ (enumeration:(offset: Int, element: String)) in
+            print("\(enumeration.offset) -> \(enumeration.element.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))")
+        })
+        
+        //print(filenames!)
+        var build = [String]()
+        var schemes = [String]()
+        var foundB = false
+        var foundS = false
+        for filename in filenames ?? []
+        {
+            let trimm =
+                filename.trimmingCharacters(
+                    in: CharacterSet.whitespacesAndNewlines
+            )
+            
+            if trimm.contains("Build Configurations:")
+            {
+                foundB = true
+                continue
+            }
+            
+            if trimm.contains("Schemes:")
+            {
+                foundS = true
+                continue
+            }
+            
+            if trimm == "" && foundB == true {
+                foundB = false
+            }
+            
+            if trimm == "" && foundS == true {
+                foundS = false
+            }
+            
+            if foundB == true {
+                build.append(trimm)
+            }
+            
+            if foundS == true {
+                schemes.append(trimm)
+            }
+        }
+        
+        print(build)
     }
     
 }
